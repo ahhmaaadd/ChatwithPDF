@@ -1,6 +1,7 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.callbacks import get_openai_callback
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 import httpx
 from dotenv import load_dotenv
@@ -67,7 +68,9 @@ def main():
                 http_client=http_client
             )
             chain = load_qa_chain(llm=llm, chain_type="stuff")
-            response = chain.run(input_documents=docs, question=query)
+            with get_openai_callback() as cb:
+                response = chain.run(input_documents=docs, question=query)
+                print(cb) # to see how much it costs
             st.write(response)
 
 
